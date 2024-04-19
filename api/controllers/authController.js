@@ -1,19 +1,19 @@
 const User = require("../Models/UserModel");
-const bcrypt = require("bcrypt")
-const validator = require("validator")
-const signUp = async (req, res) => {
+const bcrypt = require("bcrypt");
+const validator = require("validator");
+const { errorHandler } = require("../utils/error");
+const signUp = async (req, res, next) => {
   const { username, email, password } = req.body;
 
-
   if (!username || !email || !password)
-    return res.status(400).json("All fields are required...");
+    return next(errorHandler(400, "Tất cả cac trường là bắt buộc"));
 
   if (!validator.isEmail(email))
-    return res.status(400).json("Email must be a valid email");
+    return next(errorHandler(400, "vui lòng nhập đúng định dạng email"));
 
   const user = await User.findOne({ email });
 
-  if (user) return res.status(400).json({ message: "Email đã tồn tại" });
+  if (user) return next(errorHandler(400, "Email đã tồn tại"));
 
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
@@ -28,7 +28,7 @@ const signUp = async (req, res) => {
     await newUser.save();
     res.json({ message: "Đăng ký thành công" });
   } catch (error) {
-    return res.status(400).json({ message: error });
+    next(error);
   }
 };
 
