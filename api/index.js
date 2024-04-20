@@ -12,7 +12,6 @@ app.listen(4000, () => {
   console.log("Server running in port 4000!");
 });
 const uri = process.env.ATLAS_URI;
-console.log(process.env);
 mongoose
   .connect(uri)
   .then(() => console.log("MongoDB connected"))

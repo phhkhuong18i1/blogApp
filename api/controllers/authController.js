@@ -1,5 +1,6 @@
 const User = require("../Models/UserModel");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken")
 const validator = require("validator");
 const { errorHandler } = require("../utils/error");
 const signUp = async (req, res, next) => {
@@ -32,4 +33,40 @@ const signUp = async (req, res, next) => {
   }
 };
 
-module.exports = { signUp };
+//signin
+
+const signIn = async(req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return next(errorHandler(500, "Tất cả các trường là bắt buộc"));
+
+    try {
+      const user  = await User.findOne({email})
+      if(!user)
+      {
+        return next(errorHandler(400, "Không tìm thấy user"));
+      }
+
+      const validPassword = bcrypt.compare(password, user.password)
+      if(!validPassword)
+      {
+        return next(errorHandler(400, "Mật khẩu sai"));
+      }
+
+      const {password: pass, ...rest} = user._doc;
+
+      const token = jwt.sign({
+        id: user._id,
+        email: user.email,
+        username: user.username
+      },process.env.JWT_SECRET)
+     res.status(200).cookie('access_token', token, {
+      httpOnly: true
+     }).json(rest)
+    } catch (error) {
+      next(error)
+    }
+};
+
+module.exports = { signUp, signIn };

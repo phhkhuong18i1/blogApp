@@ -24,10 +24,21 @@ const SignUp = () => {
       setLoading(true);
       setErrorMessage(null);
       const res = await request.post("auth/signup", formData);
+
+      if (res.success === false) {
+        setErrorMessage(res.message);
+      }
       const data = await res.data;
       navigate("/sign-in");
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.response);
+      if (error.response) {
+        setErrorMessage(error.response.data.message);
+      } else if (error.request) {
+        setErrorMessage(error.request);
+      } else {
+        setErrorMessage(error.message);
+      }
       setLoading(false);
     }
   };
