@@ -2,11 +2,13 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import request from "../config/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInError, signInSuccess } from "../redux/user/userSlice";
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(null);
+  const {loading, error: errorMessage} = useSelector(state => state.user)
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,27 +20,24 @@ const SignIn = () => {
     e.preventDefault();
 
     if ( !formData.email || !formData.password) {
-      return setErrorMessage("vui lòng nhập đầy đủ các trường!");
+      return dispatch(signInError("vui lòng nhập đầy đủ các trường!"));
     }
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signInStart())
       const res = await request.post("auth/signin", formData);
 
-      if (res.success === false) {
-        setErrorMessage(res.message);
-      }
       const data = await res.data;
+      dispatch(signInSuccess(data))
       navigate("/");
     } catch (error) {
       if (error.response) {
-        setErrorMessage(error.response.data.message);
+        dispatch(signInError(error.response.data.message));
       } else if (error.request) {
-        setErrorMessage(error.request);
+        dispatch(signInError(error.request));
       } else {
-        setErrorMessage(error.message);
+        dispatch(signInError(error.message));
       }
-      setLoading(false);
+
     }
   };
   return (
