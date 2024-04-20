@@ -6,7 +6,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Header from "./components/Header";
-
+import axios from "axios";
+import Footer from "./components/Footer";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route path="/dashboard" element={<Dashboard />}></Route>
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }
