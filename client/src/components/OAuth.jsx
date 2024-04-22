@@ -23,7 +23,7 @@ export default function OAuth() {
       });
 
       const data = await res.data;
-      dispatch(signInSuccess(res));
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {}
   };
