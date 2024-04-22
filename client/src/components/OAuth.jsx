@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
 export default function OAuth() {
-  const auth = getAuth();
+  const auth = getAuth(app);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleGoogle = async () => {
@@ -16,10 +16,11 @@ export default function OAuth() {
     provider.setCustomParameters({ prompt: "select_account" });
     try {
       const resultsFromGoogle = await signInWithPopup(auth, provider);
+      console.log(resultsFromGoogle);
       const res = await request.post("auth/google", {
         name: resultsFromGoogle.user.displayName,
         email: resultsFromGoogle.user.email,
-        googlePhotoUrl: resultsFromGoogle.user.photoUrl,
+        googlePhotoUrl: resultsFromGoogle.user.photoURL,
       });
 
       const data = await res.data;

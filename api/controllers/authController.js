@@ -97,7 +97,7 @@ const google = async (req, res, next) => {
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
       const salt = await bcrypt.genSalt(10);
-      const hashPassword = bcrypt.hash(generatedPassword, salt);
+      const hashPassword = await bcrypt.hash(generatedPassword, salt);
       const newUser = new User({
         username:
           name.toLowerCase().split(" ").join("") +
@@ -121,7 +121,9 @@ const google = async (req, res, next) => {
         })
         .json(rest);
     }
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = { signUp, signIn, google };
