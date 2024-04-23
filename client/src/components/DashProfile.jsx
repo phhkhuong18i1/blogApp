@@ -17,6 +17,7 @@ import {
   deleteStart,
   deleteError,
   deleteSuccess,
+  signOutSuccess,
 } from "../redux/user/userSlice";
 import request from "../config/axiosInstance";
 import { toast } from "react-toastify";
@@ -146,6 +147,21 @@ const DashProfile = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      const res = await request.post("users/signOut");
+      const data = await res.data;
+      dispatch(signOutSuccess(data));
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else if (error.request) {
+        toast.error(error.request);
+      } else {
+        toast.error(error.message);
+      }
+    }
+  };
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold">Profile</h1>
@@ -221,7 +237,9 @@ const DashProfile = () => {
         <span className="cursor-pointer" onClick={() => setShowModal(true)}>
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign out</span>
+        <span className="cursor-pointer" onClick={handleSignOut}>
+          Sign out
+        </span>
       </div>
 
       <Modal

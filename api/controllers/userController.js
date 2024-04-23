@@ -42,26 +42,33 @@ const updateUser = async (req, res, next) => {
         },
       },
       { new: true }
-  );
+    );
     const { password, ...rest } = updateUser._doc;
     res.status(200).json(rest);
   } catch (error) {
-     next(error)
+    next(error);
   }
 };
 
-const deleteUser = async(req, res, next) => {
-  if(req.user.id !== req.params.userId)
-  {
+const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, "You are not allowed to delete this user"));
   }
 
   try {
-    await User.findByIdAndDelete(req.params.userId)
+    await User.findByIdAndDelete(req.params.userId);
     res.status(200).json("Xóa tài khoản thành công");
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-module.exports = { updateUser, deleteUser };
+const signOut = (req, res, next) => {
+  try {
+    res.clearCookie("access_token").status(200).json("Logout success");
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { updateUser, deleteUser, signOut };
