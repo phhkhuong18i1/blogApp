@@ -9,6 +9,7 @@ import Header from "./components/Header";
 import axios from "axios";
 import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
+import Notification from "./notifications/Notification";
 function App() {
   return (
     <BrowserRouter>
@@ -23,7 +24,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />}></Route>
         </Route>
       </Routes>
+      <Notification />
       <Footer />
+      
     </BrowserRouter>
   );
 }

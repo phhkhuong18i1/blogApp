@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -10,14 +10,23 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateSuccess,
+  updateError,
+} from "../redux/user/userSlice";
+import request from "../config/axiosInstance";
+import {toast } from 'react-toastify'
 const DashProfile = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
+  const [imageFileLoading, setImageFileLoading] = useState(false)
+  const [formData, setFormData] = useState({});
   const filePicker = useRef();
-  console.log(imageFileUploadProgress);
+  const dispatch = useDispatch();
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -44,6 +53,7 @@ const DashProfile = () => {
     //       }
     //     }
     //   }
+    setImageFileLoading(true)
     setImageFileUploadError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
@@ -60,20 +70,62 @@ const DashProfile = () => {
         setImageFileUploadError("Could not upload image");
         setImageFileUploadProgress(null);
         setImageFile(null);
-        setImageUrl(null)
+        setImageUrl(null);
+        setImageFileLoading(false)
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
           setImageUrl(downloadUrl);
+          setFormData({ ...formData, profilePicture: downloadUrl });
+          setImageFileLoading(false)
+
         });
       }
     );
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (Object.keys(formData).length === 0) {
+      return;
+    }
+
+    if(imageFileLoading){
+      return
+    }
+
+    try {
+      dispatch(updateStart());
+      const res = await request.put(
+        `users/update/${currentUser._id}`,
+        formData
+      );
+      const data = await res.data;
+      dispatch(updateSuccess(data));
+      toast.success("Cập nhật thành công")
+    } catch (error) {
+      if (error.response) {
+        dispatch(updateError(error.response.data.message));
+        toast.error(error.response.data.message)
+      } else if (error.request) {
+        dispatch(updateError(error.request));
+        toast.error(error.request)
+      } else {
+        dispatch(updateError(error.message));
+        toast.error(error.message)
+
+      }
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           type="file"
           accept="image/*"
@@ -122,14 +174,21 @@ const DashProfile = () => {
           id="username"
           placeholder="username"
           defaultValue={currentUser.username}
+          onChange={handleChange}
         />
         <TextInput
           type="email"
           id="email"
           placeholder="email"
           defaultValue={currentUser.email}
+          onChange={handleChange}
         />
-        <TextInput type="password" id="password" placeholder="password" />
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="password"
+          onChange={handleChange}
+        />
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
           Update
         </Button>

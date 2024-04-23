@@ -65,7 +65,10 @@ const signIn = async (req, res, next) => {
     res
       .status(200)
       .cookie("access_token", token, {
-        httpOnly: true,
+        secure: true, 
+        httpOnly: true, 
+        sameSite: 'None',
+        domain: "http://127.0.0.1:5173"
       })
       .json(rest);
   } catch (error) {
@@ -89,7 +92,10 @@ const google = async (req, res, next) => {
       res
         .status(200)
         .cookie("access_token", token, {
-          httpOnly: true,
+          secure: true, 
+          httpOnly: true, 
+          sameSite: 'None',
+          domain: "http://127.0.0.1"
         })
         .json(rest);
     } else {
@@ -117,7 +123,10 @@ const google = async (req, res, next) => {
       res
         .status(200)
         .cookie("access_token", token, {
-          httpOnly: true,
+          secure: true, 
+          httpOnly: true, 
+          sameSite: 'None',
+          domain: "http://127.0.0.1:5173"
         })
         .json(rest);
     }
