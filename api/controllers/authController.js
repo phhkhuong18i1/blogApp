@@ -57,8 +57,7 @@ const signIn = async (req, res, next) => {
     const token = jwt.sign(
       {
         id: user._id,
-        email: user.email,
-        username: user.username,
+        isAdmin: user?.isAdmin
       },
       process.env.JWT_SECRET
     );
@@ -68,7 +67,6 @@ const signIn = async (req, res, next) => {
         secure: true, 
         httpOnly: true, 
         sameSite: 'None',
-        domain: "http://127.0.0.1:5173"
       })
       .json(rest);
   } catch (error) {
@@ -85,6 +83,7 @@ const google = async (req, res, next) => {
       const token = jwt.sign(
         {
           id: user._id,
+          isAdmin: user?.isAdmin
         },
         process.env.JWT_SECRET
       );
@@ -95,7 +94,6 @@ const google = async (req, res, next) => {
           secure: true, 
           httpOnly: true, 
           sameSite: 'None',
-          domain: "http://127.0.0.1"
         })
         .json(rest);
     } else {
@@ -116,6 +114,7 @@ const google = async (req, res, next) => {
       const token = jwt.sign(
         {
           id: newUser._id,
+          isAdmin: newUser?.isAdmin
         },
         process.env.JWT_SECRET
       );
@@ -126,7 +125,6 @@ const google = async (req, res, next) => {
           secure: true, 
           httpOnly: true, 
           sameSite: 'None',
-          domain: "http://127.0.0.1:5173"
         })
         .json(rest);
     }

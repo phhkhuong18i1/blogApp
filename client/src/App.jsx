@@ -10,6 +10,8 @@ import axios from "axios";
 import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import Notification from "./notifications/Notification";
+import AdminPrivateRoute from "./components/AdminPrivateRoute";
+import CreatePost from "./pages/CreatePost";
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +24,9 @@ function App() {
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />}></Route>
+        </Route>
+        <Route element={<AdminPrivateRoute />}>
+          <Route path="/create-post" element={<CreatePost />}></Route>
         </Route>
       </Routes>
       <Notification />
