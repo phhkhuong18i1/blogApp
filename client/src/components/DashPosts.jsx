@@ -110,7 +110,7 @@ const DashPosts = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    <Link to={`updatePost/${post._id}`}>
+                    <Link to={`/update-post/${post._id}`}>
                       <FaEdit className="mx-auto" color="blue" />
                     </Link>
                   </Table.Cell>
