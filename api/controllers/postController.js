@@ -72,4 +72,15 @@ const getPosts = async (req, res, next) => {
   }
 };
 
-module.exports = { create, getPosts };
+const deletePost = async(req, res, next) => {
+  const postId = req.params.postId;
+
+  try {
+     await Post.findByIdAndDelete(postId);
+     res.status(200).json("Delete post success")
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { create, getPosts, deletePost };
