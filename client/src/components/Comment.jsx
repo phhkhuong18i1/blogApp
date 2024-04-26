@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import request from "../config/axiosInstance";
 import moment from "moment";
 import "moment/locale/vi"
-const Comment = ({ comment }) => {
- 
+import {FaThumbsUp} from "react-icons/fa";
+import { useSelector } from "react-redux";
+const Comment = ({ comment, onLike }) => {
+  const {currentUser} = useSelector(state => state.user)
   const [user, setUser] = useState({});
   useEffect(() => {
     const getUser = async () => {
@@ -29,6 +31,18 @@ const Comment = ({ comment }) => {
             <span className="text-gray-500 text-xs">{moment(comment.createdAt).fromNow()}</span>
         </div>
         <p className="text-gray-500 pb-2">{comment.content}</p>
+        <div className="flex gap-2 items-center pt-2 text-xs max-w-fit ">
+          <button className={` hover:text-blue-500 ${
+            currentUser && comment.likes.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'
+          }`}  type="button" onClick={() => onLike(comment._id)}>
+            <FaThumbsUp className="text-sm" />
+          </button>
+          <p className="text-gray-400">
+            {
+              comment.numberOfLikes > 0 && comment.numberOfLikes
+            }
+          </p>
+        </div>
       </div>
     </div>
   );

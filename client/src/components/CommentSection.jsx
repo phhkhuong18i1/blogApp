@@ -2,7 +2,7 @@ import { Alert, Button, TextInput, Textarea } from "flowbite-react";
 import { set } from "mongoose";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import request from "../config/axiosInstance";
 import Comment from "./Comment";
 const CommentSection = ({ postId }) => {
@@ -10,6 +10,7 @@ const CommentSection = ({ postId }) => {
   const [comment, setComment] = useState("");
   const [listComments, setListComments] = useState([]);
   const [commentError, setCommentError] = useState("");
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (comment.trim().length == 0) {
@@ -43,6 +44,27 @@ const CommentSection = ({ postId }) => {
       console.log(error.message);
     }
   }, [postId]);
+
+  const handleLikeComment = async(commentId) => {
+    try {
+        if(!currentUser){
+          navigate("/sign-in");
+          return;
+        }
+
+        const res = await request.put(`comments/likeComment/${commentId}`)
+        const data = await res.data
+        setListComments(listComments.map(comment => 
+          comment._id === commentId ? {
+            ...comment,
+            likes: data.likes,
+            numberOfLikes: data.likes.length
+          } : comment
+        ))
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
   return (
     <div className="p-3 max-w-2xl w-full mx-auto">
       {currentUser ? (
@@ -103,7 +125,7 @@ const CommentSection = ({ postId }) => {
           </div>
           {listComments.map((comment) => (
             
-              <Comment key={comment._id} comment={comment} />
+              <Comment key={comment._id} comment={comment} onLike= {handleLikeComment} />
            
           ))}
         </>
