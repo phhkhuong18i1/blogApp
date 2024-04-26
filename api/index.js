@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const userRouter = require("./routes/userRoute");
 const authRouter = require("./routes/authRoute");
 const postRouter = require("./routes/postRoute")
+const commentRouter = require("./routes/commentRoute")
 const cookieParser = require("cookie-parser")
 const cors = require('cors')
 dotenv.config();
@@ -23,6 +24,7 @@ mongoose
   app.use("/api/users", userRouter);
   app.use("/api/auth", authRouter);
   app.use("/api/posts", postRouter);
+  app.use("/api/comments", commentRouter);
 
   app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;

@@ -13,14 +13,20 @@ import Notification from "./notifications/Notification";
 import AdminPrivateRoute from "./components/AdminPrivateRoute";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
+import PostPage from "./pages/PostPage";
+import ScrollToTop from "./components/ScrollToTop";
+import moment from "moment";
+moment().locale('fr');
 function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <Header />
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/about" element={<About />}></Route>
         <Route path="/projects" element={<Projects />}></Route>
+        <Route path="/post/:postSlug" element={<PostPage />}></Route>
         <Route path="/sign-in" element={<SignIn />}></Route>
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route element={<PrivateRoute />}>

@@ -51,7 +51,6 @@ const updateUser = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
-
   if (!req.user.isAdmin && req.user.id !== req.params.userId) {
     return next(errorHandler(403, "You are not allowed to delete this user"));
   }
@@ -100,7 +99,7 @@ const getUsers = async (req, res, next) => {
     );
 
     const lastMonthUsers = await User.countDocuments({
-      createdAt: { $gte: oneMonthAgo }
+      createdAt: { $gte: oneMonthAgo },
     });
 
     res.status(200).json({
@@ -113,4 +112,17 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-module.exports = { updateUser, deleteUser, signOut, getUsers };
+const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return next(errorHandler("Không tìm thấy tài khoản"));
+    }
+    const { password, ...rest } = user._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { updateUser, deleteUser, signOut, getUsers, getUser };
