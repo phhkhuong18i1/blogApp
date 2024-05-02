@@ -57,47 +57,87 @@ const likeComment = async (req, res, next) => {
 
 const editComment = async (req, res, next) => {
   try {
-    
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) {
       return next(errorHandler("Không tìm thấy bình luận"));
     }
 
-    if(comment.userId !== req.user.id && !req.user.isAdmin){
-      return next(errorHandler("Bạn không có quyền chỉnh sửa bình luận này."))
+    if (comment.userId !== req.user.id && !req.user.isAdmin) {
+      return next(errorHandler("Bạn không có quyền chỉnh sửa bình luận này."));
     }
 
-    const edit = await Comment.findByIdAndUpdate(req.params.commentId,
+    const edit = await Comment.findByIdAndUpdate(
+      req.params.commentId,
       {
-        content: req.body.content
-    }, {
-      new: true
-    })
+        content: req.body.content,
+      },
+      {
+        new: true,
+      }
+    );
 
-    res.status(200).json(edit)
+    res.status(200).json(edit);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const deleteComment = async (req, res, next) => {
   try {
-    
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) {
       return next(errorHandler("Không tìm thấy bình luận"));
     }
 
-    if(comment.userId !== req.user.id && !req.user.isAdmin){
-      return next(errorHandler("Bạn không có quyền xóa bình luận này."))
+    if (comment.userId !== req.user.id && !req.user.isAdmin) {
+      return next(errorHandler("Bạn không có quyền xóa bình luận này."));
     }
 
-    await Comment.findByIdAndDelete(req.params.commentId)
+    await Comment.findByIdAndDelete(req.params.commentId);
 
     res.status(200).json("Xóa bình luận thành công");
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-module.exports = { createComment, getComments, likeComment, editComment, deleteComment };
+const listComments = async (req, res, next) => {
+  if (!req.user.isAdmin)
+    return next(
+      errorHandler(403, "Bạn không có quyền truy cập vào mục bình luận")
+    );
+  try {
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.sortDirection === "desc" ? -1 : 1;
+    const comments = await Comment.find()
+      .sort({ createdAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
+
+    const totalComments = await Comment.countDocuments();
+    const now = new Date();
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate()
+    );
+    const lastMonthComments = await Comment.countDocuments({
+      createdAt: { $gte: oneMonthAgo },
+    });
+    res.status(200).json({
+      comments, totalComments, lastMonthComments
+    })
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createComment,
+  getComments,
+  likeComment,
+  editComment,
+  deleteComment,
+  listComments,
+};

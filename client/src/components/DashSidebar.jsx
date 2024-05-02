@@ -1,6 +1,7 @@
 import { Sidebar } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiUser } from "react-icons/hi";
+import { FaCommentDots } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import request from "../config/axiosInstance";
@@ -39,7 +40,7 @@ const DashSidebar = () => {
             <Sidebar.Item
               active={tab === "profile"}
               icon={HiUser}
-              label="User"
+              label={currentUser.isAdmin ? "Admin" : "User"}
               as="div"
               labelColor="dark"
             >
@@ -69,6 +70,16 @@ const DashSidebar = () => {
 
             >
               Users
+            </Sidebar.Item>
+          </Link>
+          <Link to="/dashboard?tab=comments">
+            <Sidebar.Item
+              active={tab === "comments"}
+              icon={FaCommentDots}
+              as="div"
+
+            >
+              Comments
             </Sidebar.Item>
           </Link>
           </>
