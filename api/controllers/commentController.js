@@ -55,4 +55,49 @@ const likeComment = async (req, res, next) => {
   }
 };
 
-module.exports = { createComment, getComments, likeComment };
+const editComment = async (req, res, next) => {
+  try {
+    
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return next(errorHandler("Không tìm thấy bình luận"));
+    }
+
+    if(comment.userId !== req.user.id && !req.user.isAdmin){
+      return next(errorHandler("Bạn không có quyền chỉnh sửa bình luận này."))
+    }
+
+    const edit = await Comment.findByIdAndUpdate(req.params.commentId,
+      {
+        content: req.body.content
+    }, {
+      new: true
+    })
+
+    res.status(200).json(edit)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteComment = async (req, res, next) => {
+  try {
+    
+    const comment = await Comment.findById(req.params.commentId);
+    if (!comment) {
+      return next(errorHandler("Không tìm thấy bình luận"));
+    }
+
+    if(comment.userId !== req.user.id && !req.user.isAdmin){
+      return next(errorHandler("Bạn không có quyền xóa bình luận này."))
+    }
+
+    await Comment.findByIdAndDelete(req.params.commentId)
+
+    res.status(200).json("Xóa bình luận thành công");
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { createComment, getComments, likeComment, editComment, deleteComment };

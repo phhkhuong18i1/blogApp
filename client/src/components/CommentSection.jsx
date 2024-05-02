@@ -1,15 +1,18 @@
-import { Alert, Button, TextInput, Textarea } from "flowbite-react";
+import { Alert, Button, Modal, TextInput, Textarea } from "flowbite-react";
 import { set } from "mongoose";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import request from "../config/axiosInstance";
 import Comment from "./Comment";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 const CommentSection = ({ postId }) => {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [listComments, setListComments] = useState([]);
   const [commentError, setCommentError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [commentDelete, setCommentDelete] = useState(null)
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +29,7 @@ const CommentSection = ({ postId }) => {
       const data = await res.data;
       setComment("");
       setCommentError("");
-      setListComments([data, ...listComments])
+      setListComments([data, ...listComments]);
     } catch (error) {
       setCommentError(error.message);
     }
@@ -45,26 +48,48 @@ const CommentSection = ({ postId }) => {
     }
   }, [postId]);
 
-  const handleLikeComment = async(commentId) => {
+  const handleLikeComment = async (commentId) => {
     try {
-        if(!currentUser){
-          navigate("/sign-in");
-          return;
-        }
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
 
-        const res = await request.put(`comments/likeComment/${commentId}`)
-        const data = await res.data
-        setListComments(listComments.map(comment => 
-          comment._id === commentId ? {
-            ...comment,
-            likes: data.likes,
-            numberOfLikes: data.likes.length
-          } : comment
-        ))
+      const res = await request.put(`comments/likeComment/${commentId}`);
+      const data = await res.data;
+      setListComments(
+        listComments.map((comment) =>
+          comment._id === commentId
+            ? {
+                ...comment,
+                likes: data.likes,
+                numberOfLikes: data.likes.length,
+              }
+            : comment
+        )
+      );
     } catch (error) {
       console.log(error.message);
     }
-  }
+  };
+
+  const handleEdit = async (comment, editContent) => {
+    setListComments(
+      listComments.map((c) =>
+        c._id === comment._id ? { ...c, content: editContent } : c
+      )
+    );
+  };
+
+  const handleDeleteComment = async () => {
+    try {
+      const res = await request.delete(`comments/deleteComment/${commentDelete}`)
+      setListComments((prev) => prev.filter((comment) => comment._id !== commentDelete))
+      setShowModal(false)
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="p-3 max-w-2xl w-full mx-auto">
       {currentUser ? (
@@ -124,10 +149,50 @@ const CommentSection = ({ postId }) => {
             </div>
           </div>
           {listComments.map((comment) => (
-            
-              <Comment key={comment._id} comment={comment} onLike= {handleLikeComment} />
-           
+            <Comment
+              key={comment._id}
+              comment={comment}
+              onEdit={handleEdit}
+              onLike={handleLikeComment}
+              onDelete={(commentId) => {
+                setShowModal(true)
+                setCommentDelete(commentId)
+              }}
+            />
           ))}
+
+          <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        popup
+        size="md"
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="h-14 w-14 text-red-700 dark:text-gray-200 mx-auto mb-4" />
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
+              Bạn muốn xóa bình luận này?
+            </h3>
+            <div className="flex gap-4 justify-center">
+              <Button
+                className="w-[7.5rem] h-15"
+                color="failure"
+                onClick={handleDeleteComment}
+              >
+                Có
+              </Button>
+              <Button
+                className="w-[7.5rem] h-15"
+                color="gray"
+                onClick={() => setShowModal(false)}
+              >
+                Không
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
         </>
       )}
     </div>
