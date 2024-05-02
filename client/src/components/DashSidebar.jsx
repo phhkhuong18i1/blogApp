@@ -1,6 +1,6 @@
 import { Sidebar } from "flowbite-react";
 import React, { useEffect, useState } from "react";
-import { HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiUser } from "react-icons/hi";
+import { HiArrowSmRight, HiChartPie, HiDocumentText, HiOutlineUserGroup, HiUser } from "react-icons/hi";
 import { FaCommentDots } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -36,6 +36,20 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:w-56">
       <Sidebar.Items>
         <Sidebar.ItemGroup className="flex flex-col gap-3">
+        {currentUser.isAdmin && (
+            <>
+            <Link to="/dashboard?tab=dash">
+            <Sidebar.Item
+              active={tab === "dash" || !tab}
+              icon={HiChartPie}
+              as="div"
+
+            >
+              Dashboard
+            </Sidebar.Item>
+          </Link>
+          </>
+        )}
           <Link to="/dashboard?tab=profile">
             <Sidebar.Item
               active={tab === "profile"}
@@ -49,8 +63,6 @@ const DashSidebar = () => {
           </Link>
           {currentUser.isAdmin && (
             <>
-
-           
             <Link to="/dashboard?tab=posts">
             <Sidebar.Item
               active={tab === "posts"}
