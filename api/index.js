@@ -12,7 +12,7 @@ const path = require("path");
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: "https://blogapp-w020.onrender.com" }));
 app.use(cookieParser());
 app.listen(4000, () => {
   console.log("Server running in port 4000!");
