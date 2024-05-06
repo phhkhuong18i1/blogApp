@@ -2,8 +2,12 @@
   "name": "blogapp",
   "version": "1.0.0",
   "description": "",
-  "main": "api/index.js",
-  "scripts": {},
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon api/index.js",
+    "start": "node api/index.js",
+    "build": "npm install && nom install --prefix client && npm run build --prefix client"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/phhkhuong18i1/blogApp.git"
