@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from "flowbite-react";
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,15 +10,22 @@ import { toast } from "react-toastify";
 import request from "../config/axiosInstance";
 const Header = () => {
   const path = useLocation().pathname;
-  const dispatch = useDispatch()
-  const { currentUser } = useSelector(state => state.user);
-  const { theme } = useSelector(state => state.theme);
-
-  const handleSignOut = async() => {
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
+  const { theme } = useSelector((state) => state.theme);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    if (searchTermFromUrl) setSearchTerm(searchTermFromUrl);
+  }, [location.search]);
+  const handleSignOut = async () => {
     try {
-      const res = await request.post('users/signOut');
-      const data = await res.data
-      dispatch(signOutSuccess(data))
+      const res = await request.post("users/signOut");
+      const data = await res.data;
+      dispatch(signOutSuccess(data));
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -28,7 +35,14 @@ const Header = () => {
         toast.error(error.message);
       }
     }
-  }
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("searchTerm", searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
   return (
     <Navbar className="border-b-2">
       <Link
@@ -40,12 +54,14 @@ const Header = () => {
         </span>
         Blog
       </Link>
-      <form action="">
+      <form onSubmit={handleSubmit}>
         <TextInput
           type="text"
           placeholder="Search..."
           rightIcon={AiOutlineSearch}
           className="hidden lg:inline"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </form>
       <Button className="w-12 h-10 lg:hidden" color="gray" pill>
@@ -63,8 +79,13 @@ const Header = () => {
         </Navbar.Link>
       </Navbar.Collapse>
       <div className="flex gap-2 md:order-2">
-        <Button className="w-12 h-10 hidden sm:inline" color="gray" pill onClick={() => dispatch(toggleTheme())}>
-         {theme === 'light' ? <FaMoon /> : <FaSun /> } 
+        <Button
+          className="w-12 h-10 hidden sm:inline"
+          color="gray"
+          pill
+          onClick={() => dispatch(toggleTheme())}
+        >
+          {theme === "light" ? <FaMoon /> : <FaSun />}
         </Button>
         {currentUser ? (
           <Dropdown
